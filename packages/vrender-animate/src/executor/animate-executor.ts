@@ -1,4 +1,4 @@
-import type { IGraphic, EasingType, IAnimate } from '@visactor/vrender-core';
+import { type IGraphic, type EasingType, type IAnimate, AnimateStatus } from '@visactor/vrender-core';
 import type {
   IAnimationConfig,
   IAnimationTimeline,
@@ -424,12 +424,18 @@ export class AnimateExecutor implements IAnimateExecutor {
   ) {
     // 处理自定义动画
     if (custom && customType) {
-      const customParams = {
+      const _customParameters = this.resolveValue(customParameters, graphic);
+      let customParams = _customParameters;
+      if (typeof customParams === 'function') {
+        customParams = customParams(graphic.context?.data?.[0], graphic, {});
+      }
+      customParams = {
         width: graphic.stage?.width || 0,
         height: graphic.stage?.height || 0,
         group: this._target.parent,
-        ...this.resolveValue(customParameters, graphic)
+        ...customParams
       };
+
       const objOptions = isFunction(options)
         ? options.call(
             null,
@@ -746,10 +752,12 @@ export class AnimateExecutor implements IAnimateExecutor {
   /**
    * 停止所有由该执行器管理的动画
    */
-  stop(type?: 'start' | 'end' | Record<string, any>): void {
+  stop(type?: 'start' | 'end' | Record<string, any>, callEnd: boolean = true): void {
     // animate.stop会从数组里删除，所以需要while循环，不能forEach
     while (this._animates.length > 0) {
       const animate = this._animates.pop();
+      // 不执行回调时 标记动画为结束状态
+      callEnd === false && (animate.status = AnimateStatus.END);
       animate?.stop(type);
     }
 
@@ -760,7 +768,7 @@ export class AnimateExecutor implements IAnimateExecutor {
     // 如果动画正在运行，触发结束回调
     if (this._started) {
       this._started = false;
-      this.onEnd();
+      callEnd && this.onEnd();
     }
   }
 }

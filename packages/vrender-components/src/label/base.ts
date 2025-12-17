@@ -29,7 +29,8 @@ import {
   isNil,
   isArray,
   isObject,
-  pointInRect
+  pointInRect,
+  isBoolean
 } from '@visactor/vutils';
 import type { PointLocationCfg } from '../core/type';
 import { labelSmartInvert, contrastAccessibilityChecker, smartInvertStrategy } from '../util/label-smartInvert';
@@ -212,17 +213,30 @@ export class LabelBase<T extends BaseLabelAttrs> extends AnimateComponent<T> {
       labels = this._layout(labels);
     }
 
+    const filteredLabels: (IText | IRichText)[] = [];
+    const overlapLabels: (IText | IRichText)[] = labels;
+    if (!isBoolean(overlap) && isFunction(overlap?.filterBeforeOverlap)) {
+      const getRelatedGraphic = this.getRelatedGraphic.bind(this);
+      labels.forEach(label => {
+        if (overlap.filterBeforeOverlap(label, getRelatedGraphic, this)) {
+          overlapLabels.push(label);
+        } else {
+          filteredLabels.push(label);
+        }
+      });
+    }
+
     if (isFunction(customOverlapFunc)) {
       labels = customOverlapFunc(
-        labels as Text[],
+        overlapLabels as Text[],
         this.getRelatedGraphic.bind(this),
         this._isCollectionBase ? (d: LabelItem) => this._idToPoint.get(d.id) : null,
         this
-      );
+      ).concat(filteredLabels);
     } else {
       // 防重叠逻辑
       if (overlap !== false) {
-        labels = this._overlapping(labels);
+        labels = this._overlapping(overlapLabels).concat(filteredLabels);
       }
     }
 
@@ -469,7 +483,7 @@ export class LabelBase<T extends BaseLabelAttrs> extends AnimateComponent<T> {
     for (let i = 0; i < texts.length; i++) {
       const text = texts[i];
       if (!text) {
-        return;
+        return [];
       }
       const textData = text.attribute as LabelItem;
       const baseMark = this.getRelatedGraphic(textData);
@@ -566,7 +580,7 @@ export class LabelBase<T extends BaseLabelAttrs> extends AnimateComponent<T> {
       const text = result[i];
       const bounds = text.AABBBounds;
       const range = boundToRange(bmpTool, bounds, true);
-      if (canPlace(bmpTool, bitmap, bounds, clampForce, overlapPadding)) {
+      if (canPlace(bmpTool, bitmap, bounds, clampForce || hideOnOverflow, overlapPadding)) {
         bitmap.setRange(range);
       } else {
         if (hideOnOverflow) {
@@ -678,7 +692,7 @@ export class LabelBase<T extends BaseLabelAttrs> extends AnimateComponent<T> {
         continue;
       }
       // 默认位置可以放置
-      if (canPlace(bmpTool, bitmap, text.AABBBounds, clampForce, overlapPadding)) {
+      if (canPlace(bmpTool, bitmap, text.AABBBounds, clampForce || hideOnOverflow, overlapPadding)) {
         // 如果配置了限制在图形内部，需要提前判断；
         if (!checkBounds) {
           bitmap.setRange(boundToRange(bmpTool, text.AABBBounds, true));
@@ -848,7 +862,8 @@ export class LabelBase<T extends BaseLabelAttrs> extends AnimateComponent<T> {
     const relatedGraphic = this.getRelatedGraphic(text.attribute);
     const { enter } = this._animationConfig;
 
-    [text, labelLine].filter(Boolean).forEach(item =>
+    [text, labelLine].filter(Boolean).forEach(item => {
+      item.setFinalAttributes?.(item.attribute);
       item.applyAnimationState(
         ['enter'],
         [
@@ -870,8 +885,8 @@ export class LabelBase<T extends BaseLabelAttrs> extends AnimateComponent<T> {
             }
           }
         ]
-      )
-    );
+      );
+    });
   }
 
   protected _runUpdateAnimation(prevLabel: LabelContent, currentLabel: LabelContent) {

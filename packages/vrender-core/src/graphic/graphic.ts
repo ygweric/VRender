@@ -1046,7 +1046,10 @@ export abstract class Graphic<T extends Partial<IGraphicAttribute> = Partial<IGr
       // (animate as any).stateNames = stateNames;
       // animate.to(animateAttrs, stateAnimateConfig.duration, stateAnimateConfig.easing);
       noAnimateAttrs && this.setAttributesAndPreventAnimate(noAnimateAttrs, false, { type: AttributeUpdateType.STATE });
-      // Object.assign((this as any).finalAttribute, attrs);
+      // 应用状态的时候要更新 finalAttribute 也就是目标属性
+      if ((this as any).finalAttribute) {
+        Object.assign((this as any).finalAttribute, attrs);
+      }
     } else {
       this.stopStateAnimates();
       this.setAttributesAndPreventAnimate(attrs, false, { type: AttributeUpdateType.STATE });
@@ -1095,7 +1098,7 @@ export abstract class Graphic<T extends Partial<IGraphicAttribute> = Partial<IGr
   private getNormalAttribute(key: string) {
     const value = (this.attribute as any)[key];
 
-    if (this.animates) {
+    if (this.animates && this.animates.size) {
       // this.animates.forEach(animate => {
       //   if ((animate as any).stateNames) {
       //     const endProps = animate.getEndProps();

@@ -1,6 +1,82 @@
 # Change Log - @visactor/vrender
 
-This log was last generated on Wed, 24 Sep 2025 07:38:57 GMT and should not be manually modified.
+This log was last generated on Wed, 03 Dec 2025 09:12:47 GMT and should not be manually modified.
+
+## 1.0.31
+Wed, 03 Dec 2025 09:12:47 GMT
+
+_Version update only_
+
+## 1.0.30
+Thu, 27 Nov 2025 06:05:45 GMT
+
+_Version update only_
+
+## 1.0.29
+Tue, 25 Nov 2025 11:41:43 GMT
+
+_Version update only_
+
+## 1.0.28
+Tue, 25 Nov 2025 09:10:56 GMT
+
+_Version update only_
+
+## 1.0.27
+Fri, 21 Nov 2025 03:42:54 GMT
+
+### Updates
+
+- fix: fix bug of polar angle tick data loop
+
+
+
+## 1.0.26
+Tue, 18 Nov 2025 10:53:20 GMT
+
+_Version update only_
+
+## 1.0.25
+Mon, 17 Nov 2025 06:46:18 GMT
+
+_Version update only_
+
+## 1.0.24
+Mon, 03 Nov 2025 03:43:32 GMT
+
+_Version update only_
+
+## 1.0.23
+Fri, 31 Oct 2025 10:01:42 GMT
+
+_Version update only_
+
+## 1.0.22
+Fri, 31 Oct 2025 09:24:39 GMT
+
+_Version update only_
+
+## 1.0.21
+Tue, 28 Oct 2025 02:35:07 GMT
+
+_Version update only_
+
+## 1.0.20
+Mon, 27 Oct 2025 06:44:49 GMT
+
+_Version update only_
+
+## 1.0.19
+Thu, 23 Oct 2025 07:49:11 GMT
+
+_Version update only_
+
+## 1.0.18
+Mon, 13 Oct 2025 09:26:25 GMT
+
+### Updates
+
+- feat: export "@visactor/vrender-components" in "@visactor/vrender"
 
 ## 1.0.17
 Wed, 24 Sep 2025 07:38:57 GMT
